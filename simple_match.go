@@ -5,7 +5,6 @@ import (
     "fmt"
 )
 
-
 // ===== forwarding block regexpes ===== //
 var forwardingBlockStart = func() *regexp.Regexp {
     expr, err := regexp.Compile(`-{10} Forwarded message -{10}\n`)
