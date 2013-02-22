@@ -18,6 +18,7 @@ func (s *SimpleMatch) TestIsForwardingBlockStart(c *C) {
 
 func (s *SimpleMatch) TestIsForwardingBlockEnd(c *C) {
     c.Check(isForwardingBlockEnd("\n"), Equals, true)
+    c.Check(isForwardingBlockEnd("From: BOM.D.Van <bom.d.van@gmail.com>\n"), Not(Equals), true)
 }
 
 func (s *SimpleMatch) TestEmailOfRlComp(c *C) {

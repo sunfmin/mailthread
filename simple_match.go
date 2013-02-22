@@ -21,7 +21,7 @@ func isForwardingBlockStart(str string) bool {
 
 
 var forwardingBlockEnd = func() *regexp.Regexp {
-    expr, err := regexp.Compile(`\n`)
+    expr, err := regexp.Compile(`^\n`)
     if err != nil { 
         panic(err)
     }
