@@ -7,12 +7,29 @@ import (
 
 
 // ===== forwarding block regexpes ===== //
-var forwardingBlockStart, _ = regexp.Compile(`-{10} Forwarded message -{10}\n`)
+var forwardingBlockStart = func() *regexp.Regexp {
+    expr, err := regexp.Compile(`-{10} Forwarded message -{10}\n`)
+    if err != nil { 
+        panic(err)
+    }
+    
+    return expr
+}()
+
 func isForwardingBlockStart(str string) bool {
     return forwardingBlockStart.MatchString(str)
 }
 
-var forwardingBlockEnd, _ = regexp.Compile(`\n`)
+
+var forwardingBlockEnd = func() *regexp.Regexp {
+    expr, err := regexp.Compile(`\n`)
+    if err != nil { 
+        panic(err)
+    }
+    
+    return expr
+}()
+
 func isForwardingBlockEnd(str string) bool {
     return forwardingBlockEnd.MatchString(str)
 }
