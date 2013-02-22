@@ -13,6 +13,7 @@ type subjectCase struct {
 var subjectCases = []subjectCase{
 	{"Re: paygentデータ", "paygentデータ"},
 	{"Re: Fwd: Please refer to the attached file  ", "Please refer to the attached file"},
+	{"Re: Fwd: P Fwd: lease refer to Re: the attached file  ", "P Fwd: lease refer to Re: the attached file"},
 	{"Fwd: Re: [go-nuts] Digest for golang-nuts@googlegroups.com - 25 Messages in 12 Topics", "[go-nuts] Digest for golang-nuts@googlegroups.com - 25 Messages in 12 Topics"},
 	{"Fwd: Fwd: Re: レスポンシブWebはCreaitve Cloudで。 Adobe Edge Reflow提供開始！", "レスポンシブWebはCreaitve Cloudで。 Adobe Edge Reflow提供開始！"},
 	{"Reply:我爱你13165", "我爱你13165"},
