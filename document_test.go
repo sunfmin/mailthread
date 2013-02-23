@@ -8,10 +8,10 @@ import (
 // Hook up gocheck into the gotest runner.
 // func Test(t *testing.T) { TestingT(t) }
 
-type DocumentMatch struct{}
-var _ = Suite(&DocumentMatch{})
+type WholeDocument struct{}
+var _ = Suite(&WholeDocument{})
 
-func (s *DocumentMatch) TestSimpleForwarding(c *C) {
+func (s *WholeDocument) TestSimpleForwarding(c *C) {
     input, err := ioutil.ReadFile("test/input/gmail_style/simple_forwarding.eml")
     if err != nil { 
         c.Fatal(err)
@@ -29,7 +29,7 @@ func (s *DocumentMatch) TestSimpleForwarding(c *C) {
     c.Check(processedInput, Equals, string(expectedOutput))
 }
 
-func (s *DocumentMatch) TestSimplyReplyedForwarding(c *C) {
+func (s *WholeDocument) TestSimplyReplyedForwarding(c *C) {
     input, err := ioutil.ReadFile("test/input/gmail_style/simply_replied_forwarding.eml")
     if err != nil { 
         c.Fatal(err)

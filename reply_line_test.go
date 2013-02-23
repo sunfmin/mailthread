@@ -9,19 +9,10 @@ import (
 // Hook up gocheck into the gotest runner.
 func Test(t *testing.T) { TestingT(t) }
 
-type SimpleMatch struct{}
-var _ = Suite(&SimpleMatch{})
+type ReplyLine struct{}
+var _ = Suite(&ReplyLine{})
 
-func (s *SimpleMatch) TestIsForwardingBlockStart(c *C) {
-    c.Check(isForwardingBlockStart("---------- Forwarded message ----------\n"), Equals, true)
-}
-
-func (s *SimpleMatch) TestIsForwardingBlockEnd(c *C) {
-    c.Check(isForwardingBlockEnd("\n"), Equals, true)
-    c.Check(isForwardingBlockEnd("From: BOM.D.Van <bom.d.van@gmail.com>\n"), Not(Equals), true)
-}
-
-func (s *SimpleMatch) TestEmailOfRlComp(c *C) {
+func (s *ReplyLine) TestEmailOfRlComp(c *C) {
     email, err := regexp.Compile(rlComp.email)
     if err != nil { 
         c.Fatal(err)
@@ -30,7 +21,7 @@ func (s *SimpleMatch) TestEmailOfRlComp(c *C) {
     c.Check(email.MatchString("<bom.d.van@.gmail.com>"), Equals, false)
 }
 
-func (s *SimpleMatch) TestMonthAndWeekOfRlComp(c *C) {
+func (s *ReplyLine) TestMonthAndWeekOfRlComp(c *C) {
     fullMonth, err := regexp.Compile(rlComp.fullMonth)
     if err != nil { 
         c.Fatal(err)
@@ -76,7 +67,7 @@ func (s *SimpleMatch) TestMonthAndWeekOfRlComp(c *C) {
     }
 }
 
-func (s *SimpleMatch) TestYYYYMMDDOfRlComp(c *C) {
+func (s *ReplyLine) TestYYYYMMDDOfRlComp(c *C) {
     yyyymmdd, err := regexp.Compile(rlComp.yyyymmdd)
     if err != nil { 
         c.Fatal(err)
@@ -85,7 +76,7 @@ func (s *SimpleMatch) TestYYYYMMDDOfRlComp(c *C) {
     c.Check(yyyymmdd.MatchString("2013-02-20"), Equals, true)
 }
 
-func (s *SimpleMatch) TestNameOfRlComp(c *C) {
+func (s *ReplyLine) TestNameOfRlComp(c *C) {
     name, err := regexp.Compile(rlComp.name)
     if err != nil { 
         c.Fatal(err)
@@ -93,7 +84,7 @@ func (s *SimpleMatch) TestNameOfRlComp(c *C) {
     c.Check(name.MatchString("bom.d.van dd"), Equals, true)
 }
 
-func (s *SimpleMatch) TestTwentyFourHourClockOfRlComp(c *C) {
+func (s *ReplyLine) TestTwentyFourHourClockOfRlComp(c *C) {
     // testReg, err := regexp.Compile(`[0-5]`)
     // c.Log(testReg.MatchString("6"))
     twentyFourHourClock, err := regexp.Compile(rlComp.twentyFourHourClock)
@@ -104,7 +95,7 @@ func (s *SimpleMatch) TestTwentyFourHourClockOfRlComp(c *C) {
     c.Check(twentyFourHourClock.MatchString("at 24:60"), Equals, false)
 }
 
-func (s *SimpleMatch) TestTwelveHourClockOfRlComp(c *C) {
+func (s *ReplyLine) TestTwelveHourClockOfRlComp(c *C) {
     twelveHourClock, err := regexp.Compile(rlComp.twelveHourClock)
     if err != nil { 
         c.Fatal(err)
@@ -113,7 +104,7 @@ func (s *SimpleMatch) TestTwelveHourClockOfRlComp(c *C) {
     c.Check(twelveHourClock.MatchString("at 12:60 PM"), Equals, false)
 }
 
-func (s *SimpleMatch) TestIsReplyLine(c *C) {
+func (s *ReplyLine) TestIsReplyLine(c *C) {
     var matchR bool
     matchR = isReplyLine("2013/2/20 BOM.D.Van <bom.d.van@gmail.com>\n")
     c.Check(matchR, Equals, true)
