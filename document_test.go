@@ -26,6 +26,7 @@ func (s *WholeDocument) TestSimpleForwarding(c *C) {
         c.Fatal(err)
     }
     
+    // c.Log(processedInput)
     c.Check(processedInput, Equals, string(expectedOutput))
 }
 

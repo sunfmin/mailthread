@@ -4,6 +4,7 @@ import (
     // "regexp"
     "fmt"
     "strings"
+    "github.com/russross/blackfriday"
 )
 
 func Process(input string) (output string, err error) {
@@ -11,23 +12,43 @@ func Process(input string) (output string, err error) {
     endTagCounter := 1
     
     output += "<div class=\"message\">\n"
+    contentBuffer := ""
     insideForWardingBlock := false
     for _, line := range inputSlice {
         switch {
         case isForwardingBlockStart(line):
+            if contentBuffer != "" {
+                output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
+                contentBuffer = ""
+            }
             output += "<div class=\"forwarded_message_header\">\n"
-            output += line
+            
+            contentBuffer += line
+            
             insideForWardingBlock = true
         case insideForWardingBlock && isForwardingBlockEnd(line):
-            output += line
+            output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
             output += "</div>\n"
+
+            contentBuffer = line
+
             insideForWardingBlock = false
         case isReplyLine(line):
+            if contentBuffer != "" {
+                output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
+                contentBuffer = ""
+            }
+            lineInHtml := string(blackfriday.MarkdownBasic([]byte(line)))
+            output += fmt.Sprintf("<div class=\"reply\">\n<div class=\"reply_header\">\n%s</div>\n", lineInHtml)
+            
             endTagCounter += 1
-            output += fmt.Sprintf("<div class=\"reply\">\n<div class=\"reply_header\">\n%s</div>\n", line)
         default:
-            output += line
+            contentBuffer += line
         }
+    }
+    
+    if contentBuffer != "" {
+        output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
     }
     
     output += strings.Repeat("\n</div>\n", endTagCounter)
