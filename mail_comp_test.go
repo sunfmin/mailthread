@@ -42,6 +42,7 @@ func (s *HeadComp) TestFw(c *C) {
     }
     c.Check(exp.MatchString("---------- Forwarded message ----------\n"), Equals, true)
     c.Check(exp.MatchString("----- Forwarded Message -----\n"), Equals, true)
+    c.Check(exp.MatchString("From: BOM.D.Van <bom.d.van@gmail.com>\n"), Equals, true)
 }
 
 func (s *HeadComp) TestRe(c *C) {
