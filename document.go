@@ -12,43 +12,82 @@ func Process(input string) (output string, err error) {
     endTagCounter := 1
     
     output += "<div class=\"message\">\n"
-    contentBuffer := ""
-    insideForWardingBlock := false
+    buffer := contentBuffer{}
+    // insideForWardingHead := false
     for _, line := range inputSlice {
-        switch {
-        case isForwardingBlockStart(line):
-            if contentBuffer != "" {
-                output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
-                contentBuffer = ""
-            }
-            output += "<div class=\"forwarded_message_header\">\n"
-            
-            contentBuffer += line
-            
-            insideForWardingBlock = true
-        case insideForWardingBlock && isForwardingBlockEnd(line):
-            output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
-            output += "</div>\n"
-
-            contentBuffer = line
-
-            insideForWardingBlock = false
-        case isReplyLine(line):
-            if contentBuffer != "" {
-                output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
-                contentBuffer = ""
-            }
-            lineInHtml := string(blackfriday.MarkdownBasic([]byte(line)))
-            output += fmt.Sprintf("<div class=\"reply\">\n<div class=\"reply_header\">\n%s</div>\n", lineInHtml)
-            
-            endTagCounter += 1
-        default:
-            contentBuffer += line
+        buffer.push(line)
+        
+        buffer.parseLastLine()
+        
+        if buffer.atHeadStart {
+            output += string(blackfriday.MarkdownBasic([]byte(buffer.content)))
+            buffer.clear()
         }
+        
+        if buffer.atHeadEnd {
+            output += string(blackfriday.MarkdownBasic([]byte(buffer.content)))
+            
+            switch buffer.bType {
+            case fw_type:
+                output += fmt.Sprintf(
+                    "<div class=\"forwarded_message_header\">\n%s</div>\n",
+                    string(blackfriday.MarkdownBasic([]byte(buffer.content))),
+                )
+            case re_type:
+                output += fmt.Sprintf(
+                    "<div class=\"reply\">\n<div class=\"reply_header\">\n%s</div>\n", 
+                    string(blackfriday.MarkdownBasic([]byte(buffer.content))),
+                )
+                
+                endTagCounter += 1
+            }
+            
+            buffer.clear()
+        }
+        
+        // switch {
+        // case isContentHeadStart(line):
+        //     if contentBuffer != "" {
+        //         output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
+        //         contentBuffer = ""
+        //     }
+        //     
+        //     contentBuffer += line
+        // case isCotentHeadEnd(line):
+        
+        // case isForwardingHeadStart(line):
+        //     if contentBuffer != "" {
+        //         output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
+        //         contentBuffer = ""
+        //     }
+        //     output += "<div class=\"forwarded_message_header\">\n"
+        //     
+        //     contentBuffer += line
+        //     
+        //     insideForWardingHead = true
+        // case insideForWardingHead && isForwardingHeadEnd(line):
+        //     output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
+        //     output += "</div>\n"
+        // 
+        //     contentBuffer = line
+        // 
+        //     insideForWardingHead = false
+        // case isReplyLine(line):
+        //     if contentBuffer != "" {
+        //         output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
+        //         contentBuffer = ""
+        //     }
+        //     lineInHtml := string(blackfriday.MarkdownBasic([]byte(line)))
+        //     output += fmt.Sprintf("<div class=\"reply\">\n<div class=\"reply_header\">\n%s</div>\n", lineInHtml)
+        //     
+        //     endTagCounter += 1
+        // default:
+        //     contentBuffer += line
+        // }
     }
     
-    if contentBuffer != "" {
-        output += string(blackfriday.MarkdownBasic([]byte(contentBuffer)))
+    if buffer.content != "" {
+        output += string(blackfriday.MarkdownBasic([]byte(buffer.content)))
     }
     
     output += strings.Repeat("\n</div>\n", endTagCounter)
