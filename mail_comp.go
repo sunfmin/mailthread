@@ -39,7 +39,7 @@ var timeComp timeCompS
 func initMailComp() {
 	yearDigit := `(\b\d{4}\b)`                          // 0000-9999
 	monthDigit := `(0[1-9]|\b[1-9]\b|1[0-2])`           // 01-12, 1-12
-	dateDigit := `(0[1-9]|[1-2][0-9]|3[0-1])`           // 01-31
+	dateDigit := `(0[1-9]|\b[1-9]\b|[1-2][0-9]|3[0-1])` // 01-31, 1-31
 	twelveHourClock := `(0?\d|1[0-1]):[0-5]?\d (AM|PM)` // 7:38 PM, 07:38 PM, etc
 	twentyFourHourClock := `(([0-1]\d|2[0-3]):[0-5]\d)` // 20:00
 
@@ -47,7 +47,7 @@ func initMailComp() {
 		yearDigit:           yearDigit,
 		monthDigit:          monthDigit,
 		dateDigit:           dateDigit,
-		yyyymmdd:            fmt.Sprintf(`(%s[/|-]%s[/|-]%s)`, yearDigit, monthDigit, dateDigit),
+		yyyymmdd:            fmt.Sprintf(`(%s[^\d]?%s[^\d]?%s)`, yearDigit, monthDigit, dateDigit),
 		fullMonth:           `(January|February|March|April|May|June|July|August|September|October|November|December)`,
 		abbrMonth:           `(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)`,
 		fullWeek:            `(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)`,
@@ -71,7 +71,7 @@ func initMailComp() {
 	}
 
 	// 2013/2/20 BOM.D.Van <bom.d.van@gmail.com>
-	re1 := fmt.Sprintf(`%s %s %s`, timeComp.yyyymmdd, headComp.name, headComp.email)
+	re1 := fmt.Sprintf(`.*%s.*%s.*%s.*`, timeComp.yyyymmdd, name, email)
 	// On Wednesday, February 20, 2013, BOM.D.Van wrote:
 	re2 := fmt.Sprintf(`On %s, %s %s, %s, %s wrote:`, timeComp.fullWeek, timeComp.fullMonth, timeComp.dateDigit, timeComp.yearDigit, headComp.name)
 	// On Wed, Feb 20, 2013 at 7:38 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:

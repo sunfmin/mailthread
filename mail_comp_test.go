@@ -55,6 +55,24 @@ func (s *HeadComp) TestRe(c *C) {
 	c.Check(exp.MatchString("On Wednesday, February 20, 2013, BOM.D.Van wrote:\n"), Equals, true)
 	c.Check(exp.MatchString("On Wed, Feb 20, 2013 at 7:38 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:\n"), Equals, true)
 	c.Check(exp.MatchString("On 2013/2/20, at 20:00, BOM.D.Van <bom.d.van@gmail.com> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("2013年2月13日 17:38 Anatole Varin a@theplant.jp:\n"), Equals, true)
+	c.Check(exp.MatchString("2013/2/8 Maki Oka maki@theplant.jp\n"), Equals, true)
+	c.Check(exp.MatchString("2013/2/14 ku充田久 男保 <m_kubota@bkkn.co.jp>\n"), Equals, true)
+	c.Check(exp.MatchString("2013/2/13 Anatole Varin <a@theplant.jp>\n"), Equals, true)
+	c.Check(exp.MatchString(">> 2013/2/13 ku充田久 男保 <m_kubota@bkkn.co.jp>\n"), Equals, true)
+	c.Check(exp.MatchString(">>> 2013/2/13 ku充田久 男保 <m_kubota@bkkn.co.jp>\n"), Equals, true)
+	c.Check(exp.MatchString(">>>> 2013年2月13日 17:38 Anatole Varin <a@theplant.jp>:\n"), Equals, true)
+	c.Check(exp.MatchString(">>>>>> 2013年2月13日 12:02 Anatole Varin <a@theplant.jp>:\n"), Equals, true)
+	c.Check(exp.MatchString(">>>>>>>> 2013/2/8 Maki Oka <maki@theplant.jp>\n"), Equals, true)
+	c.Check(exp.MatchString(">>>>>>>>>> 2013年2月4日 20:07 ku充田久 男保 <m_kubota@bkkn.co.jp>:\n"), Equals, true)
+	c.Check(exp.MatchString(">>>>>>>>>>>> 2013/2/1 柿沼宇成 <tkakinuma@fabricant.co.jp>\n"), Equals, true)
+	c.Check(exp.MatchString("2013年2月21日 19:13 ku久保田 充男 <m_kubota@nkb.co.jp>:\n"), Equals, true)
+	c.Check(exp.MatchString("On Wed, Feb 20, 2013 at 7:37 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("On 2013/02/20 at 7:37 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("On 2013-02-20 at 7:37 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("On 2013 02 20 at 7:37 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("2013/2/27 Van Hu <bom_d_van@yahoo.com>\n"), Equals, true)
+	c.Check(exp.MatchString("1995:01:24T09:08:17.1823213 Van Hu <bom_d_van@yahoo.com>\n"), Equals, true)
 }
 
 type TimeComp struct{}
@@ -114,6 +132,10 @@ func (s *TimeComp) TestYYYYMMDD(c *C) {
 	}
 	c.Check(yyyymmdd.MatchString("2013/2/20"), Equals, true)
 	c.Check(yyyymmdd.MatchString("2013-02-20"), Equals, true)
+	c.Check(yyyymmdd.MatchString("2013年2月13日"), Equals, true)
+	c.Check(yyyymmdd.MatchString("2013/2/8"), Equals, true)
+	c.Check(yyyymmdd.MatchString("2013年2月4日"), Equals, true)
+	c.Check(yyyymmdd.MatchString("2013 02 23"), Equals, true)
 }
 
 func (s *TimeComp) TestTwentyFourHourClock(c *C) {
@@ -171,6 +193,10 @@ func (s *TimeComp) TestMonthDigit(c *C) {
 		c.Fatal(err)
 	}
 	c.Check(monthDigit.MatchString("01"), Equals, true)
+	c.Check(monthDigit.MatchString("1"), Equals, true)
+	c.Check(monthDigit.MatchString("9"), Equals, true)
+	c.Check(monthDigit.MatchString("10"), Equals, true)
+	c.Check(monthDigit.MatchString("11"), Equals, true)
 	c.Check(monthDigit.MatchString("00"), Equals, false)
 	c.Check(monthDigit.MatchString("13"), Equals, false)
 }
@@ -181,6 +207,10 @@ func (s *TimeComp) TestDateDigit(c *C) {
 		c.Fatal(err)
 	}
 	c.Check(dateDigit.MatchString("01"), Equals, true)
+	c.Check(dateDigit.MatchString("1"), Equals, true)
+	c.Check(dateDigit.MatchString("8"), Equals, true)
+	c.Check(dateDigit.MatchString("9"), Equals, true)
+	c.Check(dateDigit.MatchString("10"), Equals, true)
 	c.Check(dateDigit.MatchString("00"), Equals, false)
 	c.Check(dateDigit.MatchString("32"), Equals, false)
 }
