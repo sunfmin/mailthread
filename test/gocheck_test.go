@@ -1,4 +1,4 @@
-package mailthread
+package test
 
 import (
 	. "launchpad.net/gocheck"

@@ -3,11 +3,10 @@ package mailthread
 import (
 	// "regexp"
 	"fmt"
-	"github.com/russross/blackfriday"
 	"strings"
 )
 
-func Process(input string) (output string, err error) {
+func Process(input string, filter func(input []byte) (output []byte)) (output string, err error) {
 	inputSlice := strings.SplitAfter(input, "\n")
 	endTagCounter := 1
 
@@ -19,7 +18,7 @@ func Process(input string) (output string, err error) {
 		buffer.parseLastLine()
 
 		if buffer.atHeadStart {
-			output += string(blackfriday.MarkdownBasic([]byte(buffer.content)))
+			output += string(filter([]byte(buffer.content)))
 			buffer.clear()
 		}
 
@@ -28,12 +27,12 @@ func Process(input string) (output string, err error) {
 			case fw_type:
 				output += fmt.Sprintf(
 					"<div class=\"forwarded_message_header\">\n%s</div>\n",
-					string(blackfriday.MarkdownBasic([]byte(buffer.content))),
+					string(filter([]byte(buffer.content))),
 				)
 			case re_type:
 				output += fmt.Sprintf(
 					"<div class=\"reply\">\n<div class=\"reply_header\">\n%s</div>\n",
-					string(blackfriday.MarkdownBasic([]byte(buffer.content))),
+					string(filter([]byte(buffer.content))),
 				)
 
 				endTagCounter += 1
@@ -44,7 +43,7 @@ func Process(input string) (output string, err error) {
 	}
 
 	if buffer.content != "" {
-		output += string(blackfriday.MarkdownBasic([]byte(buffer.content + buffer.lastLine)))
+		output += string(filter([]byte(buffer.content + buffer.lastLine)))
 	}
 
 	output += strings.Repeat("\n</div>\n", endTagCounter)

@@ -1,6 +1,8 @@
-package mailthread
+package test
 
 import (
+	"github.com/russross/blackfriday"
+	"github.com/sunfmin/mailthread"
 	"io/ioutil"
 	. "launchpad.net/gocheck"
 )
@@ -19,16 +21,16 @@ var testFiles = []string{
 
 func (s *ProcessSuite) TestProcess(c *C) {
 	for _, file := range testFiles {
-		input, err := ioutil.ReadFile("test/input/" + file + ".eml")
+		input, err := ioutil.ReadFile("input/" + file + ".eml")
 		if err != nil {
 			c.Fatal(err)
 		}
-		expectedOutput, err := ioutil.ReadFile("test/output/" + file + ".html")
+		expectedOutput, err := ioutil.ReadFile("output/" + file + ".html")
 		if err != nil {
 			c.Fatal(err)
 		}
 
-		processedInput, err := Process(string(input))
+		processedInput, err := mailthread.Process(string(input), blackfriday.MarkdownBasic)
 		if err != nil {
 			c.Fatal(err)
 		}
