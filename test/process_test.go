@@ -30,10 +30,7 @@ func (s *ProcessSuite) TestProcess(c *C) {
 			c.Fatal(err)
 		}
 
-		processedInput, err := mailthread.Process(string(input), blackfriday.MarkdownBasic)
-		if err != nil {
-			c.Fatal(err)
-		}
+		processedInput := mailthread.Process(string(input), blackfriday.MarkdownBasic)
 
 		c.Log(processedInput)
 		c.Log("TEST FILE: ", file)

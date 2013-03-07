@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func Process(input string, filter func(input []byte) (output []byte)) (output string, err error) {
+func Process(input string, filter func(input []byte) (output []byte)) (output string) {
 	inputSlice := strings.SplitAfter(input, "\n")
 	endTagCounter := 1
 
