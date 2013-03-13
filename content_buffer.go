@@ -20,9 +20,10 @@ const (
 	fw_type = "fw"
 )
 
-func (buffer *contentBuffer) push(line string) {
+func (buffer *contentBuffer) parseIn(line string) {
 	buffer.content += buffer.lastLine
 	buffer.lastLine = line
+	buffer.parseLastLine()
 }
 
 func (buffer *contentBuffer) clear() {

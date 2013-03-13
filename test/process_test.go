@@ -1,7 +1,6 @@
 package test
 
 import (
-	"github.com/russross/blackfriday"
 	"github.com/sunfmin/mailthread"
 	"io/ioutil"
 	. "launchpad.net/gocheck"
@@ -30,9 +29,8 @@ func (s *ProcessSuite) TestProcess(c *C) {
 			c.Fatal(err)
 		}
 
-		processedInput := mailthread.Process(string(input), blackfriday.MarkdownBasic)
+		processedInput := mailthread.ProcessString(string(input))
 
-		c.Log(processedInput)
 		c.Log("TEST FILE: ", file)
 		c.Check(processedInput, Equals, string(expectedOutput))
 	}
