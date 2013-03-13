@@ -147,7 +147,9 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 			return
 		}
 
-		buffer.parseIn(string(l))
+		line := string(l)
+		line = strings.Replace(line, "\r\n", "\n", -1)
+		buffer.parseIn(line)
 		if buffer.atHeadStart {
 			// ch.Text(output, buffer.content)
 			buffer.clear()
@@ -178,7 +180,7 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 			}
 
 			buffer.clear()
-			io.WriteString(output, buffer.headEndLineContent)
+			ch.Text(output, buffer.headEndLineContent)
 			continue
 		}
 
