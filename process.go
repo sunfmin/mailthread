@@ -178,7 +178,7 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 			}
 
 			buffer.clear()
-			io.WriteString(output, "\n")
+			io.WriteString(output, buffer.headEndLineContent)
 			continue
 		}
 

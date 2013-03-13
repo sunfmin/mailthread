@@ -6,13 +6,14 @@ import (
 )
 
 type contentBuffer struct {
-	lastLine    string
-	content     string
-	atHeadStart bool
-	atHeadEnd   bool
-	inHead      bool
-	inFwHead    bool
-	bType       string // fw | re
+	lastLine           string
+	content            string
+	atHeadStart        bool
+	atHeadEnd          bool
+	inHead             bool
+	inFwHead           bool
+	bType              string // fw | re
+	headEndLineContent string
 }
 
 const (
@@ -55,6 +56,7 @@ func (buffer *contentBuffer) parseLastLine() {
 
 		buffer.inHead = false
 		buffer.inFwHead = false
+		buffer.headEndLineContent = buffer.lastLine
 	default:
 		buffer.atHeadStart = false
 		buffer.atHeadEnd = false
@@ -94,7 +96,7 @@ func init() {
 		panic(err)
 	}
 
-	headEndExp, err = regexp.Compile(`^\n`)
+	headEndExp, err = regexp.Compile(`^>*\n`)
 	if err != nil {
 		panic(err)
 	}

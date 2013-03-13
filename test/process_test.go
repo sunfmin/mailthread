@@ -16,6 +16,7 @@ var testFiles = []string{
 	"hotmail/nested_replied",
 	"hotmail/fw and re",
 	"yahoo mail/message",
+	"japanese",
 }
 
 func (s *ProcessSuite) TestProcess(c *C) {
