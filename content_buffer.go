@@ -32,26 +32,32 @@ func (buffer *contentBuffer) clear() {
 }
 
 func (buffer *contentBuffer) parseLastLine() {
-	buffer.atHeadStart = false
-	buffer.atHeadEnd = false
 
 	switch {
 	case buffer.isFwHeadStart():
 		buffer.bType = fw_type
 
 		buffer.atHeadStart = true
+		buffer.atHeadEnd = false
+
 		buffer.inHead = true
 		buffer.inFwHead = true
 	case !buffer.inFwHead && buffer.isReHeadStart():
 		buffer.bType = re_type
 
 		buffer.atHeadStart = true
+		buffer.atHeadEnd = false
+
 		buffer.inHead = true
 	case buffer.inHead && buffer.isHeadEnd():
-
+		buffer.atHeadStart = false
 		buffer.atHeadEnd = true
+
 		buffer.inHead = false
 		buffer.inFwHead = false
+	default:
+		buffer.atHeadStart = false
+		buffer.atHeadEnd = false
 	}
 }
 

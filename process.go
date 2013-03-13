@@ -20,6 +20,48 @@ type ContentHandler interface {
 	EndReply(w io.Writer) (err error)
 }
 
+type GoThroughHandler struct {
+}
+
+func (dch *GoThroughHandler) Text(w io.Writer, text string) (err error) {
+	_, err = io.WriteString(w, text)
+	return
+}
+
+func (dch *GoThroughHandler) StartThread(w io.Writer) (err error) {
+	return
+}
+
+func (dch *GoThroughHandler) EndThread(w io.Writer) (err error) {
+	return
+}
+
+func (dch *GoThroughHandler) StartForward(w io.Writer) (err error) {
+	return
+}
+
+func (dch *GoThroughHandler) EndForward(w io.Writer) (err error) {
+	return
+}
+
+func (dch *GoThroughHandler) ForwardHeader(w io.Writer, header string) (err error) {
+	_, err = io.WriteString(w, header)
+	return
+}
+
+func (dch *GoThroughHandler) StartReply(w io.Writer) (err error) {
+	return
+}
+
+func (dch *GoThroughHandler) EndReply(w io.Writer) (err error) {
+	return
+}
+
+func (dch *GoThroughHandler) ReplyHeader(w io.Writer, header string) (err error) {
+	_, err = io.WriteString(w, header)
+	return
+}
+
 type DefaultContentHandler struct {
 }
 
@@ -69,8 +111,12 @@ func (dch *DefaultContentHandler) ReplyHeader(w io.Writer, header string) (err e
 }
 
 func ProcessString(input string) (output string) {
-	var err error
 	ch := &DefaultContentHandler{}
+	return ProcessStringWithHandler(input, ch)
+}
+
+func ProcessStringWithHandler(input string, ch ContentHandler) (output string) {
+	var err error
 	out := bytes.NewBuffer(nil)
 	err = Process(strings.NewReader(input), out, ch)
 	if err != nil {
@@ -102,13 +148,11 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 		}
 
 		buffer.parseIn(string(l))
-
 		if buffer.atHeadStart {
 			// ch.Text(output, buffer.content)
 			buffer.clear()
 			continue
 		}
-
 		if buffer.atHeadEnd {
 			switch buffer.bType {
 			case fw_type:
@@ -134,6 +178,7 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 			}
 
 			buffer.clear()
+			io.WriteString(output, "\n")
 			continue
 		}
 

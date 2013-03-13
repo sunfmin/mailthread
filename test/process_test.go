@@ -35,3 +35,17 @@ func (s *ProcessSuite) TestProcess(c *C) {
 		c.Check(processedInput, Equals, string(expectedOutput))
 	}
 }
+
+func (s *ProcessSuite) TestGoThoughProcess(c *C) {
+	for _, file := range testFiles {
+		input, err := ioutil.ReadFile("input/" + file + ".eml")
+		if err != nil {
+			c.Fatal(err)
+		}
+
+		processedInput := mailthread.ProcessStringWithHandler(string(input), &mailthread.GoThroughHandler{})
+
+		c.Log("TEST FILE: ", file)
+		c.Check(processedInput, Equals, string(input))
+	}
+}

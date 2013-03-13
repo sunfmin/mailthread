@@ -66,7 +66,7 @@ func initMailComp() {
 		email: fmt.Sprintf(`(\<%s\>)`, email),
 		name:  name,
 		from:  fmt.Sprintf(`^From: (%s|%s \<%s\>)\n`, email, name, email),
-		fw:    `^((-{10}|-{5}) Forwarded [M|m]essage (-{10}|-{5}))\n`,
+		fw:    `^((-{5,20}) Forwarded [M|m]essage (-{5,20}))\n`,
 		// re:    fmt.Sprintf(`(^(%s|%s|%s|%s)\n)`, re1, re2, re3, re4),
 	}
 
