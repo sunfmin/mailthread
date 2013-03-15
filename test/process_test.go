@@ -20,6 +20,7 @@ var testFiles = []string{
 	"hotmail/fw and re",
 	"yahoo mail/message",
 	"japanese",
+	"forward_havent_support1",
 }
 
 func (s *ProcessSuite) TestProcess(c *C) {
@@ -83,7 +84,6 @@ func (qch *CustomizedContentHandler) ReplyHeader(w io.Writer, header string) (er
 }
 
 func (qch *CustomizedContentHandler) Text(w io.Writer, text string) (err error) {
-	println(qch.mainContentFilled, "Text", text)
 	if qch.mainContentFilled {
 		qch.otherContent.WriteString(text)
 	} else {
