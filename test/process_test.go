@@ -64,13 +64,13 @@ type CustomizedContentHandler struct {
 }
 
 func (qch *CustomizedContentHandler) ForwardHeader(w io.Writer, header string) (err error) {
-	println(qch.mainContentFilling, "ForwardHeader")
 	if qch.mainContentFilling {
 		qch.mainContentFilled = true
 		qch.mainContentFilling = false
 	}
 	if qch.mainContentFilled {
 		qch.otherContent.WriteString(header)
+		err = mailthread.SkipParseLeftError
 	} else {
 		qch.mainContent.WriteString(header)
 	}
@@ -78,8 +78,12 @@ func (qch *CustomizedContentHandler) ForwardHeader(w io.Writer, header string) (
 }
 
 func (qch *CustomizedContentHandler) ReplyHeader(w io.Writer, header string) (err error) {
-	println(qch.mainContentFilling, "ReplyHeader")
 	err = qch.ForwardHeader(w, header)
+	return
+}
+
+func (qch *CustomizedContentHandler) Skip(r io.Reader, w io.Writer) (err error) {
+	io.Copy(&qch.otherContent, r)
 	return
 }
 
