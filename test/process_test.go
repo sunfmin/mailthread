@@ -2,12 +2,16 @@ package test
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/sunfmin/mailthread"
 	"io"
 	"io/ioutil"
 	. "launchpad.net/gocheck"
 	"strings"
 )
+
+var fl = fmt.Println
+var fp = fmt.Printf
 
 type ProcessSuite struct{}
 

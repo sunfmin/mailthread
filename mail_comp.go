@@ -2,19 +2,20 @@ package mailthread
 
 import "fmt"
 
+// NOTE:
+// Comments here are not update-to-date, see mail_comp_test.go for each compositions
 type headCompS struct {
-	email string // <bom.d.van@gmail.com>
-	name  string // ' BOM.D.Van ', ' Van Hu ', etc(it can be any character)
-	from  string // From: bom.d.van@hotmail.com, From: BOM.D.Van <bom.d.van@gmail.com>
-	fw    string // '---------- Forwarded message ----------', '----- Forwarded Message -----'
-	re    string // '2013/2/20 BOM.D.Van <bom.d.van@gmail.com>', 'On Wednesday, February 20, 2013, BOM.D.Van wrote:', 'On Wed, Feb 20, 2013 at 7:38 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:', 'On 2013/2/20, at 20:00, BOM.D.Van <bom.d.van@gmail.com> wrote:'
-
-	// to      string // To: bom.d.van@hotmail.com
-	// subject string // Subject: RE: email test
-	// date    string // Date: Wed, 27 Feb 2013 00:03:05 +0000
-	// cc      string // Cc: bom_d_van@yahoo.com, CC: bom_d_van@yahoo.com 
-	// sent    string // Sent: Wednesday, February 27, 2013 9:45 AM
-	// subject string // Subject: email test
+	email       string // <bom.d.van@gmail.com>
+	name        string // ' BOM.D.Van ', ' Van Hu ', etc(it can be any character)
+	fw          string // '---------- Forwarded message ----------', '----- Forwarded Message -----'
+	re          string // '2013/2/20 BOM.D.Van <bom.d.van@gmail.com>', 'On Wednesday, February 20, 2013, BOM.D.Van wrote:', 'On Wed, Feb 20, 2013 at 7:38 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:', 'On 2013/2/20, at 20:00, BOM.D.Van <bom.d.van@gmail.com> wrote:'
+	from        string // From: bom.d.van@hotmail.com, From: BOM.D.Van <bom.d.van@gmail.com>
+	to          string // To: bom.d.van@hotmail.com, To: BOM Van <bom.d.van@gmail.com>
+	subject     string // Subject: RE: email test
+	date        string // Date: Wed, 27 Feb 2013 00:03:05 +0000, Date: 2013/2/20
+	cc          string // Cc: bom_d_van@yahoo.com, CC: bom_d_van@yahoo.com
+	sent        string // Sent: Wednesday, February 27, 2013 9:45 AM
+	legalFwComp string // (fw|to|subject|date|cc|sent)
 }
 
 var headComp headCompS
@@ -65,9 +66,16 @@ func initMailComp() {
 	headComp = headCompS{
 		email: fmt.Sprintf(`(\<%s\>)`, email),
 		name:  name,
-		from:  fmt.Sprintf(`^From: (%s|%s \<%s\>)\n`, email, name, email),
-		fw:    `^((-{5,20}) Forwarded [M|m]essage (-{5,20}))\n`,
-		// re:    fmt.Sprintf(`(^(%s|%s|%s|%s)\n)`, re1, re2, re3, re4),
+		fw:    `^(((-{5,20}) Forwarded [M|m]essage (-{5,20}))|_{32})\n`,
+		// from:  fmt.Sprintf(`^From: (%s|%s \<%s\>|%s \[mailto:%s\]|%s)\n`, email, name, email, name, email, name),
+		from: `(From: .+)\n`,
+		// to: fmt.Sprintf(`(To: (%s|%s|%s \<%s\>))\n`, email, name, name, email),
+		to:      `(To: .+)\n`,
+		subject: `(Subject: .+)\n`,
+		date:    fmt.Sprintf(`(Date: (%s, %s %s %s %s %s|%s|%s, %s %s, %s at %s))\n`, timeComp.abbrWeek, timeComp.dateDigit, timeComp.abbrMonth, timeComp.yearDigit, timeComp.fullTimeClock, timeComp.timeZoneOffset, timeComp.yyyymmdd, timeComp.abbrWeek, timeComp.abbrMonth, timeComp.dateDigit, timeComp.yearDigit, timeComp.twelveHourClock),
+		// cc: fmt.Sprintf(`((Cc|CC): ((%s|%s);?)+)\n`, email, name),
+		cc:   `((Cc|CC): .+)\n`,
+		sent: fmt.Sprintf(`(Sent: %s, %s %s, %s %s)\n`, timeComp.fullWeek, timeComp.fullMonth, timeComp.dateDigit, timeComp.yearDigit, timeComp.twelveHourClock),
 	}
 
 	// 2013/2/20 BOM.D.Van <bom.d.van@gmail.com>
@@ -80,4 +88,5 @@ func initMailComp() {
 	re4 := fmt.Sprintf(`On %s, at %s, %s %s wrote:`, timeComp.yyyymmdd, timeComp.twentyFourHourClock, headComp.name, headComp.email)
 
 	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s)\n)`, re1, re2, re3, re4)
+	headComp.legalFwComp = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s|%s))`, headComp.fw, headComp.from, headComp.to, headComp.subject, headComp.cc, headComp.date, headComp.sent)
 }

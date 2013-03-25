@@ -180,7 +180,7 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 		buffer.parseIn(line)
 		if buffer.atHeadStart {
 			// ch.Text(output, buffer.content)
-			buffer.clear()
+			buffer.clean()
 			continue
 		}
 		if buffer.atHeadEnd {
@@ -209,7 +209,7 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 				}
 			}
 
-			buffer.clear()
+			buffer.clean()
 			err = ch.Text(output, buffer.headEndLineContent)
 			if err, exit = handleError(err, ch, r, output, endtaggers, ""); exit {
 				return
@@ -218,6 +218,11 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 		}
 
 		if buffer.inHead {
+			if !buffer.legalHeadContent {
+				err = ch.Text(output, string(buffer.content))
+				buffer.rewind()
+			}
+
 			continue
 		}
 
@@ -228,7 +233,6 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 		if err, exit = handleError(err, ch, r, output, endtaggers, ""); exit {
 			return
 		}
-
 	}
 
 	return
