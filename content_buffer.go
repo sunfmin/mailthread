@@ -24,6 +24,7 @@ const (
 
 var (
 	fwHeadStartExp *regexp.Regexp
+	// fromHeadStartExp *regexp.Regexp
 	reHeadStartExp *regexp.Regexp
 	headEndExp     *regexp.Regexp
 	legalFwCompExp *regexp.Regexp
@@ -32,23 +33,13 @@ var (
 func init() {
 	initMailComp()
 
-	var err error
+	// var err error
 
-	fwHeadStartExp, err = regexp.Compile(headComp.fw)
-	if err != nil {
-		panic(err)
-	}
-
-	reHeadStartExp, err = regexp.Compile(fmt.Sprintf(`(%s|%s)`, headComp.from, headComp.re))
-	if err != nil {
-		panic(err)
-	}
-
-	headEndExp, err = regexp.Compile(`^>*\n`)
-	if err != nil {
-		panic(err)
-	}
-
+	fwHeadStartExp = regexp.MustCompile(headComp.fw)
+	// fromHeadStartExp = regexp.MustCompile(headComp.from)
+	reHeadStartExp = regexp.MustCompile(fmt.Sprintf(`(%s|%s)`, headComp.from, headComp.re))
+	// headEndExp = regexp.MustCompile(`^>*\n`)
+	headEndExp = regexp.MustCompile(`^\n`)
 	legalFwCompExp = regexp.MustCompile(headComp.legalFwComp)
 }
 
@@ -71,7 +62,7 @@ func (buffer *contentBuffer) rewind() {
 
 func (buffer *contentBuffer) parseLastLine() {
 	switch {
-	case buffer.isFwHeadStart():
+	case !buffer.inFwHead && buffer.isFwHeadStart():
 		buffer.bType = fw_type
 
 		buffer.atHeadStart = true
@@ -89,6 +80,8 @@ func (buffer *contentBuffer) parseLastLine() {
 		buffer.inHead = true
 		buffer.legalHeadContent = true
 	case buffer.inHead && buffer.isHeadEnd():
+		// buffer.bType = ""
+
 		buffer.atHeadStart = false
 		buffer.atHeadEnd = true
 
@@ -105,6 +98,7 @@ func (buffer *contentBuffer) parseLastLine() {
 
 func (buffer *contentBuffer) isFwHeadStart() bool {
 	return fwHeadStartExp.MatchString(buffer.lastLine)
+	// || fromHeadStartExp.MatchString(buffer.lastLine)
 }
 
 func (buffer *contentBuffer) isReHeadStart() bool {

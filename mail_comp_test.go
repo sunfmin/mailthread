@@ -38,6 +38,23 @@ func (s *HeadComp) TestFw(c *C) {
 	c.Check(exp.MatchString("----- Forwarded Message -----\n"), Equals, true)
 	c.Check(exp.MatchString("________________________________\n"), Equals, true)
 	c.Check(exp.MatchString("From: BOM.D.Van <bom.d.van@gmail.com>\n"), Equals, false)
+	c.Check(exp.MatchString("From: Peter Smyth <peter.smyth@isbbdo.co.jp>\n"), Equals, false)
+}
+
+func (s *HeadComp) TestLeadingLeftArrows(c *C) {
+	exp, err := regexp.Compile(headComp.leadingLeftArrows)
+	if err != nil {
+		c.Fatal(err)
+	}
+	c.Check(exp.MatchString(">\n"), Equals, true)
+	c.Check(exp.MatchString(">\n"), Equals, true)
+	c.Check(exp.MatchString("> On May 27, 2013, at 4:21 PM, Kilian Muster <kilian@theplant.jp (mailto:kilian@theplant.jp)> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("> > Hi Peter,\n"), Equals, true)
+	c.Check(exp.MatchString("> > > >\n"), Equals, true)
+	c.Check(exp.MatchString("> > > > > From: Kilian Muster <kilian@theplant.jp (mailto:kilian@theplant.jp)>\n"), Equals, true)
+	c.Check(exp.MatchString("don't match this >\n"), Equals, false)
+	c.Check(exp.MatchString(" >\n"), Equals, false)
+	c.Check(exp.MatchString(" >don't match this\n"), Equals, false)
 }
 
 func (s *HeadComp) TestRe(c *C) {
@@ -67,6 +84,15 @@ func (s *HeadComp) TestRe(c *C) {
 	c.Check(exp.MatchString("On 2013 02 20 at 7:37 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:\n"), Equals, true)
 	c.Check(exp.MatchString("2013/2/27 Van Hu <bom_d_van@yahoo.com>\n"), Equals, true)
 	c.Check(exp.MatchString("1995:01:24T09:08:17.1823213 Van Hu <bom_d_van@yahoo.com>\n"), Equals, true)
+	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("On January 27, 2013, at 4:21 PM, Kilian Muster wrote:\n"), Equals, true)
+
+	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster <kilian@theplant.jp (mailto:kilian@theplant.jp)> wrote:\n"), Equals, true)
+}
+
+func (s *HeadComp) TestEmptyLine(c *C) {
+	exp := regexp.MustCompile(`^\n$`)
+	c.Check(exp.MatchString("\n"), Equals, true)
 }
 
 func (s *HeadComp) TestFrom(c *C) {
@@ -78,6 +104,7 @@ func (s *HeadComp) TestFrom(c *C) {
 	c.Check(exp.MatchString("From: bom.d.van@hotmail.com\n"), Equals, true)
 	c.Check(exp.MatchString("From: Maki Oka [mailto:maki@theplant.jp]\n"), Equals, true)
 	c.Check(exp.MatchString("From: ku久保田 充男\n"), Equals, true)
+	c.Check(exp.MatchString("From: Peter Smyth <peter.smyth@isbbdo.co.jp>\n"), Equals, true)
 }
 
 func (s *HeadComp) TestTo(c *C) {
@@ -109,6 +136,7 @@ func (s *HeadComp) TestDate(c *C) {
 	c.Check(exp.MatchString("Date: Wed, 27 Feb 2013 00:03:05 +0000\n"), Equals, true)
 	c.Check(exp.MatchString("Date: Wed, Feb 20, 2013 at 7:37 PM\n"), Equals, true)
 	c.Check(exp.MatchString("Date: 2013/2/20\n"), Equals, true)
+	c.Check(exp.MatchString("Date: Friday, May 31, 2013 15:08:42\n"), Equals, true)
 }
 
 func (s *HeadComp) TestCc(c *C) {

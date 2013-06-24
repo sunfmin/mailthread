@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"regexp"
 	"strings"
 )
 
@@ -132,12 +133,71 @@ func ProcessString(input string) (output string) {
 func ProcessStringWithHandler(input string, ch ContentHandler) (output string) {
 	var err error
 	out := bytes.NewBuffer(nil)
+
+	if HasLeadingNestedMailArrow(input) {
+		input, err = RemoveLeadingNestedArrows(input)
+		// TODO => refactor: why not return error?
+		if err != nil {
+			return input
+		}
+	}
+
 	err = Process(strings.NewReader(input), out, ch)
 	if err != nil {
 		return input
 	}
+
 	output = out.String()
 	return
+}
+
+// var leadingNestedMailArrowMatcher = regexp.MustCompile(`.*\n>( >)*.*\n>( >)*.*\n>( >)*.*\n.*`)
+var leadingNestedMailArrowMatcher = regexp.MustCompile(`.*\n>( >*|>*).*\n>( >*|>*).*\n>( >*|>*).*\n.*`)
+
+func HasLeadingNestedMailArrow(input string) bool {
+	return leadingNestedMailArrowMatcher.MatchString(input)
+}
+
+func RemoveLeadingNestedArrows(input string) (string, error) {
+	r := strings.NewReader(input)
+	scanner := bufio.NewScanner(r)
+	newInput := ""
+	endWithNewLine := input[len(input)-1] == '\n'
+
+	for scanner.Scan() {
+		newInput += getContent(scanner.Text())
+		newInput += "\n"
+	}
+
+	if !endWithNewLine {
+		newInput = newInput[:len(newInput)-1]
+	}
+
+	if err := scanner.Err(); err != nil {
+		return "", err
+	}
+
+	return newInput, nil
+}
+
+// See TestSuit => ProcessTest
+// var leadingNestedMailArrow = regexp.MustCompile(`^>( >)* ((>\S.*|[^>].*)\n?)$`)
+var leadingNestedMailArrow = regexp.MustCompile(`^>(( >)*|>*) ((>\S.*|[^>].*)\n?)$`)
+
+// var leadingNestedMailArrow2 = regexp.MustCompile(`^>( >)*(\n?)$`)
+var leadingNestedMailArrow2 = regexp.MustCompile(`^>(( >)*|>*)(\n?)$`)
+
+func getContent(input string) string {
+	switch {
+	case leadingNestedMailArrow2.MatchString(input):
+		input = leadingNestedMailArrow2.FindStringSubmatch(input)[3]
+		break
+	case leadingNestedMailArrow.MatchString(input):
+		input = leadingNestedMailArrow.FindStringSubmatch(input)[3]
+		break
+	}
+
+	return input
 }
 
 type endTagger func(ch ContentHandler, w io.Writer) error
@@ -155,6 +215,7 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 	buffer := contentBuffer{}
 	var l []byte
 	var exit, eof bool
+
 	for {
 		if eof {
 			return
@@ -175,9 +236,13 @@ func Process(input io.Reader, output io.Writer, ch ContentHandler) (err error) {
 			l = append(l[:len(l)-2], '\n')
 		}
 
-		line := string(l)
-		// fmt.Printf("%q\n", line)
+		line := string(string(l))
+		if line == " \n" {
+			line = "\n"
+		}
+
 		buffer.parseIn(line)
+
 		if buffer.atHeadStart {
 			// ch.Text(output, buffer.content)
 			buffer.clean()

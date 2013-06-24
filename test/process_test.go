@@ -25,6 +25,7 @@ var testFiles = []string{
 	"yahoo mail/message",
 	"japanese",
 	"forward_havent_support1",
+	"left-arrowed-mail",
 }
 
 func (s *ProcessSuite) TestProcess(c *C) {
@@ -54,8 +55,16 @@ func (s *ProcessSuite) TestGoThoughProcess(c *C) {
 
 		processedInput := mailthread.ProcessStringWithHandler(string(input), &mailthread.GoThroughHandler{})
 
+		newInput := string(input)
+		if mailthread.HasLeadingNestedMailArrow(string(input)) {
+			newInput, err = mailthread.RemoveLeadingNestedArrows(string(input))
+			if err != nil {
+				c.Fatal(err)
+			}
+		}
+
 		c.Log("TEST FILE: ", file)
-		c.Check(processedInput, Equals, string(input))
+		c.Check(processedInput, Equals, newInput)
 	}
 }
 
@@ -112,9 +121,48 @@ func (s *ProcessSuite) TestCustomizedProcess(c *C) {
 	maincontent, _ := ioutil.ReadFile("output/" + file + "_customized_main.html")
 	othercontent, _ := ioutil.ReadFile("output/" + file + "_customized_other.html")
 
+	newMaincontent := string(maincontent)
+	if mailthread.HasLeadingNestedMailArrow(string(maincontent)) {
+		newMaincontent, err = mailthread.RemoveLeadingNestedArrows(string(maincontent))
+		if err != nil {
+			c.Fatal(err)
+		}
+	}
+	newOthercontent := string(othercontent)
+	if mailthread.HasLeadingNestedMailArrow(string(othercontent)) {
+		newOthercontent, err = mailthread.RemoveLeadingNestedArrows(string(othercontent))
+		if err != nil {
+			c.Fatal(err)
+		}
+	}
+
 	ch := &CustomizedContentHandler{}
 	mailthread.ProcessStringWithHandler(string(input), ch)
 
-	c.Check(ch.mainContent.String(), Equals, string(maincontent))
-	c.Check(ch.otherContent.String(), Equals, string(othercontent))
+	c.Check(ch.mainContent.String(), Equals, newMaincontent)
+	c.Check(ch.otherContent.String(), Equals, newOthercontent)
+}
+
+func (s *ProcessSuite) TestCustomizedProcess2(c *C) {
+	file := "left-arrowed-mail"
+	input, err := ioutil.ReadFile("input/" + file + ".eml")
+	if err != nil {
+		c.Fatal(err)
+	}
+	maincontent, _ := ioutil.ReadFile("output/" + file + "-customized_main.html")
+	othercontent, _ := ioutil.ReadFile("output/" + file + "-customized_other.html")
+
+	newMaincontent := string(maincontent)
+	newOthercontent := string(othercontent)
+
+	ch := &CustomizedContentHandler{}
+	mailthread.ProcessStringWithHandler(string(input), ch)
+
+	// fmt.Println("+++++++++++++++++++============+++++++++++++++++++============")
+	// fmt.Println(ch.mainContent.String())
+	// fmt.Println("+++++++++++++++++++============+++++++++++++++++++============")
+	// fmt.Println(ch.otherContent.String())
+
+	c.Check(ch.mainContent.String(), Equals, newMaincontent)
+	c.Check(ch.otherContent.String(), Equals, newOthercontent)
 }
