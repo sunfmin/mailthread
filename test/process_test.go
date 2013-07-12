@@ -41,6 +41,10 @@ func (s *ProcessSuite) TestProcess(c *C) {
 
 		processedInput := mailthread.ProcessString(string(input))
 
+		if file == "japanese" {
+			fmt.Println(processedInput)
+		}
+
 		c.Log("TEST FILE: ", file)
 		c.Check(processedInput, Equals, string(expectedOutput))
 	}
@@ -158,10 +162,43 @@ func (s *ProcessSuite) TestCustomizedProcess2(c *C) {
 	ch := &CustomizedContentHandler{}
 	mailthread.ProcessStringWithHandler(string(input), ch)
 
-	// fmt.Println("+++++++++++++++++++============+++++++++++++++++++============")
-	// fmt.Println(ch.mainContent.String())
-	// fmt.Println("+++++++++++++++++++============+++++++++++++++++++============")
-	// fmt.Println(ch.otherContent.String())
+	c.Check(ch.mainContent.String(), Equals, newMaincontent)
+	c.Check(ch.otherContent.String(), Equals, newOthercontent)
+}
+
+func (s *ProcessSuite) TestCustomizedProcessForMarkdownText(c *C) {
+	file := "markdown_text"
+	input, err := ioutil.ReadFile("input/" + file + ".eml")
+	if err != nil {
+		c.Fatal(err)
+	}
+	maincontent, _ := ioutil.ReadFile("output/" + file + "-customized_main.html")
+	othercontent, _ := ioutil.ReadFile("output/" + file + "-customized_other.html")
+
+	newMaincontent := string(maincontent)
+	newOthercontent := string(othercontent)
+
+	ch := &CustomizedContentHandler{}
+	mailthread.ProcessStringWithHandler(string(input), ch)
+
+	c.Check(ch.mainContent.String(), Equals, newMaincontent)
+	c.Check(ch.otherContent.String(), Equals, newOthercontent)
+}
+
+func (s *ProcessSuite) TestCustomizedProcessForMarkdownForward(c *C) {
+	file := "forward_markdown_test"
+	input, err := ioutil.ReadFile("input/" + file + ".eml")
+	if err != nil {
+		c.Fatal(err)
+	}
+	maincontent, _ := ioutil.ReadFile("output/" + file + "-customized_main.html")
+	othercontent, _ := ioutil.ReadFile("output/" + file + "-customized_other.html")
+
+	newMaincontent := string(maincontent)
+	newOthercontent := string(othercontent)
+
+	ch := &CustomizedContentHandler{}
+	mailthread.ProcessStringWithHandler(string(input), ch)
 
 	c.Check(ch.mainContent.String(), Equals, newMaincontent)
 	c.Check(ch.otherContent.String(), Equals, newOthercontent)

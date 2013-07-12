@@ -16,6 +16,8 @@ func (s *HeadComp) TestEmail(c *C) {
 	}
 	c.Check(email.MatchString("<bom.d.van@gtime.com>"), Equals, true)
 	c.Check(email.MatchString("<bom.d.van@hotmail.com>"), Equals, true)
+	c.Check(email.MatchString(`\<[finance.van-test@qortex.theplant-dev.com]("mailto:finance.van-test@qortex.theplant-dev.com")\>`), Equals, true)
+
 	c.Check(email.MatchString("<bom.d.van@.gtime.com>"), Equals, false)
 }
 
@@ -37,6 +39,8 @@ func (s *HeadComp) TestFw(c *C) {
 	c.Check(exp.MatchString("---------- Forwarded message ----------\n"), Equals, true)
 	c.Check(exp.MatchString("----- Forwarded Message -----\n"), Equals, true)
 	c.Check(exp.MatchString("________________________________\n"), Equals, true)
+	// c.Check(exp.MatchString(" ------------------------------\n"), Equals, true)
+	// c.Check(exp.MatchString("* * * * *\n"), Equals, true)
 	c.Check(exp.MatchString("From: BOM.D.Van <bom.d.van@gmail.com>\n"), Equals, false)
 	c.Check(exp.MatchString("From: Peter Smyth <peter.smyth@isbbdo.co.jp>\n"), Equals, false)
 }
@@ -85,9 +89,15 @@ func (s *HeadComp) TestRe(c *C) {
 	c.Check(exp.MatchString("2013/2/27 Van Hu <bom_d_van@yahoo.com>\n"), Equals, true)
 	c.Check(exp.MatchString("1995:01:24T09:08:17.1823213 Van Hu <bom_d_van@yahoo.com>\n"), Equals, true)
 	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster\n"), Equals, false)
 	c.Check(exp.MatchString("On January 27, 2013, at 4:21 PM, Kilian Muster wrote:\n"), Equals, true)
 
 	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster <kilian@theplant.jp (mailto:kilian@theplant.jp)> wrote:\n"), Equals, true)
+
+	c.Check(exp.MatchString("On Mon, Jul 8, 2013 at 4:24 PM, Finance \\<[finance.van-test@qortex.theplant-dev.com](\"mailto:finance.van-test@qortex.theplant-dev.com\")\\> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("On Mon, Jul 8, 2013 at 4:24 PM, Finance \\<[finance.van-test@qortex.theplant-dev.com](\"mailto:finance.van-test@qortex.theplant-dev.com\")\\> wrote:  \n"), Equals, true)
+	c.Check(exp.MatchString("On Mon, Jul 8, 2013 at 4:24 PM, Finance \\<[finance.van-test@qortex.theplant-dev.com](mailto:finance.van-test@qortex.theplant-dev.com)\\> wrote:  \n"), Equals, true)
+	c.Check(exp.MatchString("2013/6/26 BOM.D.Van \\<[bom.d.van@gmail.com](mailto:bom.d.van@gmail.com)\\>\n"), Equals, true)
 }
 
 func (s *HeadComp) TestEmptyLine(c *C) {
@@ -105,6 +115,9 @@ func (s *HeadComp) TestFrom(c *C) {
 	c.Check(exp.MatchString("From: Maki Oka [mailto:maki@theplant.jp]\n"), Equals, true)
 	c.Check(exp.MatchString("From: ku久保田 充男\n"), Equals, true)
 	c.Check(exp.MatchString("From: Peter Smyth <peter.smyth@isbbdo.co.jp>\n"), Equals, true)
+	c.Check(exp.MatchString("From: **Finance** \\<[finance.van-test@qortex.theplant-dev.com](mailto:finance.van-test@qortex.theplant-dev.com)\\>\n"), Equals, true)
+	c.Check(exp.MatchString("**From:** BOM.D.Van \\<bom.d.van@gmail.com\\>\n"), Equals, true)
+	// c.Check(exp.MatchString("*From:* Van Hu <bom_d_van@yahoo.com>\n"), Equals, true)
 }
 
 func (s *HeadComp) TestTo(c *C) {
@@ -117,6 +130,8 @@ func (s *HeadComp) TestTo(c *C) {
 	c.Check(exp.MatchString("To: ku久保田 充男\n"), Equals, true)
 	c.Check(exp.MatchString("To: bom.d.van@hotmail.com; 191418494@qq.com\n"), Equals, true)
 	c.Check(exp.MatchString("To: bom_d_van@yahoo.com, Van Hu <bom.d.van@hotmail.com>, BOM Van <bom.d.van@gmail.com>\n"), Equals, true)
+	c.Check(exp.MatchString(" **To:** Van Bom \\<bomdvan@yahoo.com\\>\n"), Equals, true)
+	// c.Check(exp.MatchString("*To:* ku久保田 充男\n"), Equals, true)
 }
 
 func (s *HeadComp) TestSubject(c *C) {
@@ -126,6 +141,7 @@ func (s *HeadComp) TestSubject(c *C) {
 	}
 	c.Check(exp.MatchString("Subject: RE: email test\n"), Equals, true)
 	c.Check(exp.MatchString("Subject: Re: Team Lacoste/ECのデータ同期のつきまして\n"), Equals, true)
+	// c.Check(exp.MatchString("*Subject:* Re: Team Lacoste/ECのデータ同期のつきまして\n"), Equals, true)
 }
 
 func (s *HeadComp) TestDate(c *C) {
@@ -137,6 +153,7 @@ func (s *HeadComp) TestDate(c *C) {
 	c.Check(exp.MatchString("Date: Wed, Feb 20, 2013 at 7:37 PM\n"), Equals, true)
 	c.Check(exp.MatchString("Date: 2013/2/20\n"), Equals, true)
 	c.Check(exp.MatchString("Date: Friday, May 31, 2013 15:08:42\n"), Equals, true)
+	c.Check(exp.MatchString(" Date: Mon, Jul 8, 2013 at 4:24 PM\n"), Equals, true)
 }
 
 func (s *HeadComp) TestCc(c *C) {
@@ -147,6 +164,7 @@ func (s *HeadComp) TestCc(c *C) {
 	c.Check(exp.MatchString("Cc: bom_d_van@yahoo.com\n"), Equals, true)
 	c.Check(exp.MatchString("CC: bom_d_van@yahoo.com\n"), Equals, true)
 	c.Check(exp.MatchString("Cc: Jinzhu; 柿沼宇成; su鈴木 郷佑; re久保田google; o 小沢 充; lacoste-dev@theplant.jp; VarinAnatole\n"), Equals, true)
+	// c.Check(exp.MatchString("*Cc:* Jinzhu; 柿沼宇成; su鈴木 郷佑; re久保田google; o 小沢 充; lacoste-dev@theplant.jp;\n"), Equals, true)
 	c.Check(exp.MatchString("Cc: BOM Van <bom.d.van@gmail.com>, bomdvan@yahoo.com, Van Hu <bom.d.van@hotmail.com>\n"), Equals, true)
 }
 
@@ -156,6 +174,7 @@ func (s *HeadComp) TestSent(c *C) {
 		c.Fatal(err)
 	}
 	c.Check(exp.MatchString("Sent: Wednesday, February 27, 2013 9:45 AM\n"), Equals, true)
+	// c.Check(exp.MatchString("*Sent:* Monday, February 18, 2013 4:34 PM\n"), Equals, true)
 }
 
 type TimeComp struct{}

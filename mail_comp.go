@@ -2,13 +2,19 @@ package mailthread
 
 import "fmt"
 
-// NOTE:
+// =================================================================================
+//
+// NOTE<IMPORTANT>:
 // Comments here are not update-to-date, see mail_comp_test.go for each compositions
+//
+// =================================================================================
+
 type headCompS struct {
 	email             string // <bom.d.van@gmail.com>
 	name              string // ' BOM.D.Van ', ' Van Hu ', etc(it can be any character)
 	fw                string // '---------- Forwarded message ----------', '----- Forwarded Message -----'
 	re                string // '2013/2/20 BOM.D.Van <bom.d.van@gmail.com>', 'On Wednesday, February 20, 2013, BOM.D.Van wrote:', 'On Wed, Feb 20, 2013 at 7:38 PM, BOM.D.Van <bom.d.van@gmail.com> wrote:', 'On 2013/2/20, at 20:00, BOM.D.Van <bom.d.van@gmail.com> wrote:'
+	bareRe            string // re without ^
 	from              string // From: bom.d.van@hotmail.com, From: BOM.D.Van <bom.d.van@gmail.com>
 	to                string // To: bom.d.van@hotmail.com, To: BOM Van <bom.d.van@gmail.com>
 	subject           string // Subject: RE: email test
@@ -65,18 +71,18 @@ func initMailComp() {
 	email := `([_a-zA-Z0-9-]+(\.[_a-zA-Z0-9-]+)*@[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)*\.(([0-9]{1,3})|([a-zA-Z]{2,3})|(aero|coop|info|museum|name)))` // bom.d.van@gmail.com
 
 	headComp = headCompS{
-		email:             fmt.Sprintf(`(\<%s\>)`, email),
+		email:             fmt.Sprintf(`((\\)?\<(%s|\[%s\]\("?mailto:%s"?\))(\\)?\>)`, email, email, email), // see mail_comp_test.go#TestEmail
 		name:              name,
 		fw:                `^(((-{5,20}) Forwarded [Mm]essage (-{5,20}))|_{32})\n`,
-		from:              `(From: .+)\n`,
-		to:                `(To: .+)\n`,
-		subject:           `(Subject: .+)\n`,
-		cc:                `((Cc|CC): .+)\n`,
-		leadingLeftArrows: `(^>+( >)*).*\n`,
+		from:              `^( *(\*\*)?From:(\*\*)? .+)\n`,
+		to:                `^( *(\*\*)?To:(\*\*)? .+)\n`,
+		subject:           `^( *(\*\*)?Subject:(\*\*)? .+)\n`,
+		cc:                `^( *(\*\*)?(Cc|CC):(\*\*)? .+)\n`,
+		leadingLeftArrows: `^(>+( >)*).*\n`,
 
 		// Date: Friday, May 31, 2013 15:08:42
 		date: fmt.Sprintf(
-			`(Date: (%s, %s %s %s %s %s|%s|%s, %s %s, %s at %s|%s, (%s|%s) %s, %s %s))\n`,
+			`^( *(\*\*)?Date:(\*\*)? (%s, %s %s %s %s %s|%s|%s, %s %s, %s at %s|%s, (%s|%s) %s, %s %s))\n`,
 			timeComp.abbrWeek,
 			timeComp.dateDigit,
 			timeComp.abbrMonth,
@@ -98,7 +104,7 @@ func initMailComp() {
 		),
 
 		sent: fmt.Sprintf(
-			`(Sent: %s, %s %s, %s %s)\n`,
+			`^(Sent: %s, %s %s, %s %s)\n`,
 			timeComp.fullWeek,
 			timeComp.fullMonth,
 			timeComp.dateDigit,
@@ -111,7 +117,8 @@ func initMailComp() {
 	re1 := fmt.Sprintf(
 		`.*%s.*%s.*%s.*`,
 		timeComp.yyyymmdd,
-		name, email,
+		headComp.name,
+		email,
 	)
 	// On Wednesday, February 20, 2013, BOM.D.Van wrote:
 	re2 := fmt.Sprintf(
@@ -149,9 +156,22 @@ func initMailComp() {
 		timeComp.dateDigit,
 		timeComp.yearDigit,
 		timeComp.twelveHourClock,
-		name,
+		headComp.name,
 	)
-	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s)\n)`, re1, re2, re3, re4, re5)
+	// On Mon, Jul 8, 2013 at 4:24 PM, Finance \<[finance.van-test@qortex.theplant-dev.com]("mailto:finance.van-test@qortex.theplant-dev.com")\> wrote:
+	re6 := fmt.Sprintf(
+		`On %s, (%s|%s) %s, %s at %s, %s %s wrote:`,
+		timeComp.abbrWeek,
+		timeComp.fullMonth,
+		timeComp.abbrMonth,
+		timeComp.dateDigit,
+		timeComp.yearDigit,
+		timeComp.twelveHourClock,
+		headComp.name,
+		headComp.email,
+	)
+	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6)
+	headComp.bareRe = fmt.Sprintf(`((%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6)
 
 	headComp.legalFwComp = fmt.Sprintf(
 		`(^(%s|%s|%s|%s|%s|%s|%s))`,
@@ -163,4 +183,9 @@ func initMailComp() {
 		headComp.date,
 		headComp.sent,
 	)
+}
+
+// Expose reply head matching for out-of-package using.
+func GetBareReComp() string {
+	return headComp.bareRe
 }
