@@ -186,6 +186,7 @@ func initMailComp() {
 }
 
 // Expose reply head matching for out-of-package using.
+// Bare means the string does not begin with `^`
 func GetBareReComp() string {
 	return headComp.bareRe
 }

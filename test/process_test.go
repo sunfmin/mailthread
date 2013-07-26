@@ -41,10 +41,6 @@ func (s *ProcessSuite) TestProcess(c *C) {
 
 		processedInput := mailthread.ProcessString(string(input))
 
-		if file == "japanese" {
-			fmt.Println(processedInput)
-		}
-
 		c.Log("TEST FILE: ", file)
 		c.Check(processedInput, Equals, string(expectedOutput))
 	}
