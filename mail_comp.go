@@ -32,6 +32,7 @@ type timeCompS struct {
 	monthDigit          string // 01-12
 	dateDigit           string // 01-31
 	yyyymmdd            string // 2013/2/20, 2013-02-20, etc
+	ddmmyyyy            string // 15/07/2013
 	fullMonth           string // July
 	abbrMonth           string // Jul
 	fullWeek            string // Sunday
@@ -45,24 +46,25 @@ type timeCompS struct {
 var timeComp timeCompS
 
 func initMailComp() {
-	yearDigit := `(\b\d{4}\b)`                          // 0000-9999
-	monthDigit := `(0[1-9]|\b[1-9]\b|1[0-2])`           // 01-12, 1-12
-	dateDigit := `(0[1-9]|\b[1-9]\b|[1-2][0-9]|3[0-1])` // 01-31, 1-31
-	twelveHourClock := `(0?\d|1[0-1]):[0-5]?\d (AM|PM)` // 7:38 PM, 07:38 PM, etc
-	twentyFourHourClock := `(([0-1]\d|2[0-3]):[0-5]\d)` // 20:00
+	yearDigit := `(\b\d{4}\b)`                             // 0000-9999
+	monthDigit := `(0[1-9]|\b[1-9]\b|1[0-2])`              // 01-12, 1-12
+	dateDigit := `(0[1-9]|\b[1-9]\b|[1-2][0-9]|3[0-1])`    // 01-31, 1-31
+	twelveHourClock := `(0?\d|1[0-1]):[0-5]?\d (AM|PM)`    // 7:38 PM, 07:38 PM, etc
+	twentyFourHourClock := `(([0-1]\d|2[0-3]|\d):[0-5]\d)` // 20:00, 5:12, 05:12
 
 	timeComp = timeCompS{
 		yearDigit:           yearDigit,
 		monthDigit:          monthDigit,
 		dateDigit:           dateDigit,
 		yyyymmdd:            fmt.Sprintf(`(%s[^\d]?%s[^\d]?%s)`, yearDigit, monthDigit, dateDigit),
+		ddmmyyyy:            fmt.Sprintf(`(%s[\/-]%s[\/-]%s)`, dateDigit, monthDigit, yearDigit),
 		fullMonth:           `(January|February|March|April|May|June|July|August|September|October|November|December)`,
 		abbrMonth:           `(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sept|Oct|Nov|Dec)`,
 		fullWeek:            `(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday)`,
 		abbrWeek:            `(Mon|Tue|Wed|Thu|Fri|Sat|Sun)`,
 		twelveHourClock:     twelveHourClock,
 		twentyFourHourClock: twentyFourHourClock,
-		fullTimeClock:       fmt.Sprintf(`(24:00:00|%s:[0-5]\d)`, twentyFourHourClock),
+		fullTimeClock:       `(24:00:00|00:00:00|([0-1]\d|2[0-3]):[0-5]\d:[0-5]\d)`,
 		timeZoneOffset:      `([+-]((0\d|1[0-3]):?[0-5]\d|14:00))`,
 	}
 
@@ -170,6 +172,14 @@ func initMailComp() {
 		headComp.name,
 		headComp.email,
 	)
+	// On 15/08/2013, at 5:00 , Kilian Muster via Qortex <qortex.theplant@qortex.com> wrote:
+	re7 := fmt.Sprintf(
+		`On %s, at %s , %s %s wrote:`,
+		timeComp.ddmmyyyy,
+		timeComp.twentyFourHourClock,
+		headComp.name,
+		headComp.email,
+	)
 	// ------------------ 原始邮件 ------------------
 	// **发件人:** "孙凤民";
 	// **发送时间:** 2013年8月6日(星期二) 晚上6:00
@@ -177,8 +187,10 @@ func initMailComp() {
 	// **主题:** 杭州大浪111
 	qqReCn := `------------------ 原始邮件 ------------------\n\*\*发件人:\*\* .+\n\*\*发送时间:\*\* .+\n\*\*收件人:\*\* .+\n\*\*主题:\*\* .+`
 
-	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, qqReCn)
-	headComp.bareRe = fmt.Sprintf(`((%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, qqReCn)
+	// brokenOnWroteRe := `On .+\n wrote:\n`
+
+	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, re7, qqReCn)
+	headComp.bareRe = fmt.Sprintf(`((%s|%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, re7, qqReCn)
 
 	headComp.legalFwComp = fmt.Sprintf(
 		`(^(%s|%s|%s|%s|%s|%s|%s))`,

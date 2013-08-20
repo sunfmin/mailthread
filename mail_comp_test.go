@@ -91,6 +91,7 @@ func (s *HeadComp) TestRe(c *C) {
 	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster wrote:\n"), Equals, true)
 	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster\n"), Equals, false)
 	c.Check(exp.MatchString("On January 27, 2013, at 4:21 PM, Kilian Muster wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("On 15/08/2013, at 5:00 , Kilian Muster via Qortex <qortex.theplant@qortex.com> wrote:\n"), Equals, true)
 
 	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster <kilian@theplant.jp (mailto:kilian@theplant.jp)> wrote:\n"), Equals, true)
 
@@ -248,12 +249,21 @@ func (s *TimeComp) TestYYYYMMDD(c *C) {
 	c.Check(yyyymmdd.MatchString("2013 02 23"), Equals, true)
 }
 
+func (s *TimeComp) TestDDMMYYYY(c *C) {
+	yyyymmdd, err := regexp.Compile(timeComp.ddmmyyyy)
+	if err != nil {
+		c.Fatal(err)
+	}
+	c.Check(yyyymmdd.MatchString("15/08/2013"), Equals, true)
+}
+
 func (s *TimeComp) TestTwentyFourHourClock(c *C) {
 	twentyFourHourClock, err := regexp.Compile(timeComp.twentyFourHourClock)
 	if err != nil {
 		c.Fatal(err)
 	}
 	c.Check(twentyFourHourClock.MatchString("20:00"), Equals, true)
+	c.Check(twentyFourHourClock.MatchString("2:00"), Equals, true)
 	c.Check(twentyFourHourClock.MatchString("24:60"), Equals, false)
 }
 
