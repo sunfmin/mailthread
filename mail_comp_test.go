@@ -98,6 +98,14 @@ func (s *HeadComp) TestRe(c *C) {
 	c.Check(exp.MatchString("On Mon, Jul 8, 2013 at 4:24 PM, Finance \\<[finance.van-test@qortex.theplant-dev.com](\"mailto:finance.van-test@qortex.theplant-dev.com\")\\> wrote:  \n"), Equals, true)
 	c.Check(exp.MatchString("On Mon, Jul 8, 2013 at 4:24 PM, Finance \\<[finance.van-test@qortex.theplant-dev.com](mailto:finance.van-test@qortex.theplant-dev.com)\\> wrote:  \n"), Equals, true)
 	c.Check(exp.MatchString("2013/6/26 BOM.D.Van \\<[bom.d.van@gmail.com](mailto:bom.d.van@gmail.com)\\>\n"), Equals, true)
+
+	qqRe := `------------------ 原始邮件 ------------------
+**发件人:** "孙凤民" ;
+**发送时间:** 2013年8月6日(星期二) 晚上6:00
+**收件人:** "BOM.D.Van"\<191418494@qq.com\>;
+**主题:** 杭州大浪111
+`
+	c.Check(exp.MatchString(qqRe), Equals, true)
 }
 
 func (s *HeadComp) TestEmptyLine(c *C) {

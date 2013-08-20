@@ -170,8 +170,15 @@ func initMailComp() {
 		headComp.name,
 		headComp.email,
 	)
-	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6)
-	headComp.bareRe = fmt.Sprintf(`((%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6)
+	// ------------------ 原始邮件 ------------------
+	// **发件人:** "孙凤民";
+	// **发送时间:** 2013年8月6日(星期二) 晚上6:00
+	// **收件人:** "BOM.D.Van"\<191418494@qq.com\>;
+	// **主题:** 杭州大浪111
+	qqReCn := `------------------ 原始邮件 ------------------\n\*\*发件人:\*\* .+\n\*\*发送时间:\*\* .+\n\*\*收件人:\*\* .+\n\*\*主题:\*\* .+`
+
+	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, qqReCn)
+	headComp.bareRe = fmt.Sprintf(`((%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, qqReCn)
 
 	headComp.legalFwComp = fmt.Sprintf(
 		`(^(%s|%s|%s|%s|%s|%s|%s))`,
