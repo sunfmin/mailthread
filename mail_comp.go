@@ -180,6 +180,8 @@ func initMailComp() {
 		headComp.name,
 		headComp.email,
 	)
+	// Now I give out to match part by part for this stupid reply lines, it just keep wasting my time
+	re8 := `On .* wrote:`
 	// ------------------ 原始邮件 ------------------
 	// **发件人:** "孙凤民";
 	// **发送时间:** 2013年8月6日(星期二) 晚上6:00
@@ -189,8 +191,8 @@ func initMailComp() {
 
 	// brokenOnWroteRe := `On .+\n wrote:\n`
 
-	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, re7, qqReCn)
-	headComp.bareRe = fmt.Sprintf(`((%s|%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, re7, qqReCn)
+	headComp.re = fmt.Sprintf(`(^(%s|%s|%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, re7, re8, qqReCn)
+	headComp.bareRe = fmt.Sprintf(`((%s|%s|%s|%s|%s|%s|%s|%s|%s) *?\n)`, re1, re2, re3, re4, re5, re6, re7, re8, qqReCn)
 
 	headComp.legalFwComp = fmt.Sprintf(
 		`(^(%s|%s|%s|%s|%s|%s|%s))`,

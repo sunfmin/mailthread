@@ -99,6 +99,7 @@ func (s *HeadComp) TestRe(c *C) {
 	c.Check(exp.MatchString("On Mon, Jul 8, 2013 at 4:24 PM, Finance \\<[finance.van-test@qortex.theplant-dev.com](\"mailto:finance.van-test@qortex.theplant-dev.com\")\\> wrote:  \n"), Equals, true)
 	c.Check(exp.MatchString("On Mon, Jul 8, 2013 at 4:24 PM, Finance \\<[finance.van-test@qortex.theplant-dev.com](mailto:finance.van-test@qortex.theplant-dev.com)\\> wrote:  \n"), Equals, true)
 	c.Check(exp.MatchString("2013/6/26 BOM.D.Van \\<[bom.d.van@gmail.com](mailto:bom.d.van@gmail.com)\\>\n"), Equals, true)
+	c.Check(exp.MatchString("On Thu, Sep 5, 2013 at 9:04 AM, 冯 俊辉 via Qortex \\<[lunch.gh@mail.qortex.cn](mailto:lunch.gh@mail.qortex.cn)\\> wrote:  \n"), Equals, true)
 
 	qqRe := `------------------ 原始邮件 ------------------
 **发件人:** "孙凤民" ;
