@@ -92,6 +92,8 @@ func (s *HeadComp) TestRe(c *C) {
 	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster\n"), Equals, false)
 	c.Check(exp.MatchString("On January 27, 2013, at 4:21 PM, Kilian Muster wrote:\n"), Equals, true)
 	c.Check(exp.MatchString("On 15/08/2013, at 5:00 , Kilian Muster via Qortex <qortex.theplant@qortex.com> wrote:\n"), Equals, true)
+	c.Check(exp.MatchString("在 2013年9月27日星期五，孙 凤民 via Qortex 写道：\n"), Equals, true)
+	c.Check(exp.MatchString("2013/8/12 BOM.D.Van \\<[191418494@qq.com](mailto:191418494@qq.com)\\>  \n"), Equals, true)
 
 	c.Check(exp.MatchString("On May 27, 2013, at 4:21 PM, Kilian Muster <kilian@theplant.jp (mailto:kilian@theplant.jp)> wrote:\n"), Equals, true)
 
